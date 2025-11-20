@@ -1,3 +1,4 @@
+
 import { BotConfig } from '../types';
 
 export interface WhatsAppCredentials {
@@ -14,6 +15,8 @@ export interface BusinessProfileData {
   websites?: string[];
 }
 
+// Use a proxy path to avoid CORS issues in the browser
+const BASE_URL = '/api/meta'; 
 const API_VERSION = 'v21.0';
 
 /**
@@ -25,7 +28,8 @@ export const testWhatsAppConnection = async (
   recipientPhone: string
 ): Promise<boolean> => {
   
-  const url = `https://graph.facebook.com/${API_VERSION}/${creds.phoneNumberId}/messages`;
+  // We use the proxy path BASE_URL instead of https://graph.facebook.com
+  const url = `${BASE_URL}/${API_VERSION}/${creds.phoneNumberId}/messages`;
 
   try {
     const response = await fetch(url, {
@@ -68,7 +72,7 @@ export const sendWhatsAppText = async (
   recipientPhone: string,
   message: string
 ): Promise<any> => {
-  const url = `https://graph.facebook.com/${API_VERSION}/${creds.phoneNumberId}/messages`;
+  const url = `${BASE_URL}/${API_VERSION}/${creds.phoneNumberId}/messages`;
 
   try {
     const response = await fetch(url, {
@@ -113,7 +117,7 @@ export const updateBusinessProfile = async (
   creds: WhatsAppCredentials,
   profileData: BusinessProfileData
 ): Promise<any> => {
-  const url = `https://graph.facebook.com/${API_VERSION}/${creds.phoneNumberId}/whatsapp_business_profile`;
+  const url = `${BASE_URL}/${API_VERSION}/${creds.phoneNumberId}/whatsapp_business_profile`;
 
   try {
     const response = await fetch(url, {
