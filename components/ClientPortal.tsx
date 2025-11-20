@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { QrCode, BarChart3, Settings, LogOut, MessageSquare, Users, Smartphone, CheckCircle, AlertCircle, Server, Key, Wifi, Send, Save, RefreshCw, UploadCloud } from 'lucide-react';
+import { BarChart3, Settings, LogOut, MessageSquare, Users, Smartphone, CheckCircle, AlertCircle, Server, Key, Wifi, Send, Save, RefreshCw, UploadCloud } from 'lucide-react';
 import { BotConfig } from '../types';
 import { testWhatsAppConnection, sendWhatsAppText, updateBusinessProfile } from '../services/whatsapp';
 
