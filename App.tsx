@@ -5,16 +5,18 @@ import { Pricing } from './components/Pricing';
 import { Testimonials } from './components/Testimonials';
 import { WhatsAppPreview } from './components/WhatsAppPreview';
 import { PrivacyPolicy, TermsOfService } from './components/LegalDocs';
+import { ClientPortal } from './components/ClientPortal';
 import { generateBotScript } from './services/gemini';
-import { BotConfig } from './types';
+import { BotConfig, ViewState } from './types';
+import { BUSINESS_CONFIG } from './constants';
 import { 
   Bot, Scissors, Truck, Utensils, Send, CheckCircle2, MessageCircle, 
   Briefcase, GraduationCap, Home, Wrench, Stethoscope, PartyPopper, Sprout, Car, Globe, AlertCircle, Copy,
-  Dumbbell, Camera, Laptop, Shirt, Hammer, Scale, Sparkles, Plane, ShoppingBag
+  Dumbbell, Camera, Laptop, Shirt, Hammer, Scale, Sparkles, Plane, ShoppingBag, User
 } from 'lucide-react';
 
 function App() {
-  const [view, setView] = useState<'landing' | 'demo'>('landing');
+  const [view, setView] = useState<ViewState>('landing');
   const [activeLegal, setActiveLegal] = useState<'privacy' | 'terms' | null>(null);
   const [businessName, setBusinessName] = useState('');
   const [businessType, setBusinessType] = useState('Retail');
@@ -22,9 +24,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [botConfig, setBotConfig] = useState<BotConfig | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
-  // REPLACE THIS WITH YOUR ACTUAL WHATSAPP NUMBER (Format: 267xxxxxxx)
-  const OWNER_PHONE = "26778064893"; 
   
   // Ref for scrolling to demo section
   const demoRef = useRef<HTMLDivElement>(null);
@@ -82,7 +81,7 @@ ${botConfig.menuOptions.map((opt, i) => `${i+1}. ${opt}`).join('\n')}`;
     if (!botConfig) return;
 
     const wantsSubscription = window.confirm(
-      "Would you like to add the Monthly Maintenance Plan ($19/mo)?\n\n" +
+      `Would you like to add the Monthly Maintenance Plan ($${BUSINESS_CONFIG.pricing.maintenance}/mo)?\n\n` +
       "Benefits include:\n" +
       "✅ Priority Support\n" +
       "✅ Monthly Performance Reports\n" +
@@ -93,19 +92,19 @@ ${botConfig.menuOptions.map((opt, i) => `${i+1}. ${opt}`).join('\n')}`;
     let message = `Hello! I just created a demo for *${botConfig.businessName}* (${botConfig.businessType}) on AfricaBot. I want to claim this bot and setup the service.`;
     
     if (wantsSubscription) {
-      message += `\n\nI would also like to include the *Monthly Maintenance Plan ($19 USD/mo)*.`;
+      message += `\n\nI would also like to include the *Monthly Maintenance Plan ($${BUSINESS_CONFIG.pricing.maintenance} USD/mo)*.`;
     } else {
       message += `\n\nI am interested in the *One-time Setup* only.`;
     }
 
-    const url = `https://wa.me/${OWNER_PHONE}?text=${encodeURIComponent(message)}`;
+    const url = `https://wa.me/${BUSINESS_CONFIG.phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };
 
   // Sales Funnel: Plan Inquiry
   const handlePlanSelect = (planName: string) => {
     const message = `Hello! I am interested in the *${planName}* package for my business. I will be paying in USD (or equivalent). Please help me get set up.`;
-    const url = `https://wa.me/${OWNER_PHONE}?text=${encodeURIComponent(message)}`;
+    const url = `https://wa.me/${BUSINESS_CONFIG.phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };
 
@@ -150,30 +149,43 @@ ${botConfig.menuOptions.map((opt, i) => `${i+1}. ${opt}`).join('\n')}`;
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-whatsapp-teal font-bold text-xl cursor-pointer" onClick={() => setView('landing')}>
             <Bot size={28} />
-            <span>AfricaBot<span className="text-gray-400 font-normal">.ai</span></span>
+            <span>{BUSINESS_CONFIG.appName}<span className="text-gray-400 font-normal">.ai</span></span>
           </div>
           <div className="hidden md:flex gap-6 text-sm font-medium text-gray-600">
              <a href="#" onClick={(e) => { e.preventDefault(); setView('landing'); }} className="hover:text-whatsapp-teal">Home</a>
              <a href="#features" className="hover:text-whatsapp-teal">Features</a>
              <a href="#pricing" className="hover:text-whatsapp-teal">Pricing</a>
           </div>
-          <button 
-             onClick={handleStartDemo}
-             className="bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-slate-800 transition-colors">
-            Get Started
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setView('login')}
+              className="text-gray-600 hover:text-whatsapp-teal font-medium text-sm flex items-center gap-1 px-3 py-2"
+            >
+              <User size={16} />
+              <span className="hidden sm:inline">Client Login</span>
+            </button>
+            <button 
+               onClick={handleStartDemo}
+               className="bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-slate-800 transition-colors">
+              Get Started
+            </button>
+          </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="pt-16">
-        {view === 'landing' ? (
-          <>
+      <main>
+        {view === 'login' || view === 'dashboard' ? (
+            <ClientPortal 
+              onLogout={() => setView('landing')} 
+              generatedConfig={botConfig}
+            />
+        ) : view === 'landing' ? (
+          <div className="pt-16">
             <Hero onStartDemo={handleStartDemo} />
             <div id="features">
               <Features />
             </div>
-            {/* Reordered: Pricing first, then Testimonials */}
             <Pricing onPlanSelect={handlePlanSelect} />
             <Testimonials />
             
@@ -187,12 +199,13 @@ ${botConfig.menuOptions.map((opt, i) => `${i+1}. ${opt}`).join('\n')}`;
                   </button>
                </div>
             </section>
-          </>
+          </div>
         ) : (
-          <div ref={demoRef} className="min-h-screen bg-slate-50 py-12">
+          <div ref={demoRef} className="min-h-screen bg-slate-50 py-12 pt-28">
             <div className="container mx-auto px-4">
               <div className="max-w-5xl mx-auto">
                 <div className="text-center mb-12">
+                   <button onClick={() => setView('landing')} className="text-sm text-gray-500 hover:text-whatsapp-teal mb-4">← Back to Home</button>
                    <h2 className="text-3xl font-bold text-gray-900">Build Your Bot Preview</h2>
                    <p className="text-gray-500 mt-2">See exactly how your business will look on WhatsApp.</p>
                 </div>
@@ -313,7 +326,7 @@ ${botConfig.menuOptions.map((opt, i) => `${i+1}. ${opt}`).join('\n')}`;
                                   className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                                >
                                  <MessageCircle size={18} />
-                                 Claim This Bot ($49 USD)
+                                 Claim This Bot (${BUSINESS_CONFIG.pricing.starter} USD)
                                </button>
                                
                                <button 
@@ -351,17 +364,18 @@ ${botConfig.menuOptions.map((opt, i) => `${i+1}. ${opt}`).join('\n')}`;
            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
              <div className="flex items-center gap-2 text-white font-bold text-xl">
                 <Bot size={24} className="text-whatsapp-teal"/>
-                <span>AfricaBot<span className="text-gray-500 font-normal">.ai</span></span>
+                <span>{BUSINESS_CONFIG.appName}<span className="text-gray-500 font-normal">.ai</span></span>
              </div>
              <div className="text-center md:text-right">
-                <p className="mb-2">&copy; 2025 AfricaBot AI Solutions.</p>
-                <p className="text-xs text-gray-500">Built with ❤️ in Africa by <span className="text-gray-300">Ian Tshakalisa</span></p>
+                <p className="mb-2">&copy; 2025 {BUSINESS_CONFIG.appName} Solutions.</p>
+                <p className="text-xs text-gray-500">Built with ❤️ in Africa by Ian Tshakalisa</p>
              </div>
            </div>
            <div className="border-t border-gray-800 mt-8 pt-8 flex justify-center gap-8 text-xs">
              <button onClick={() => setActiveLegal('privacy')} className="hover:text-white transition-colors">Privacy Policy</button>
              <button onClick={() => setActiveLegal('terms')} className="hover:text-white transition-colors">Terms of Service</button>
-             <a href={`https://wa.me/${OWNER_PHONE}`} target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Contact Developer</a>
+             <button onClick={() => setView('login')} className="hover:text-white transition-colors">Client Portal</button>
+             <a href={`https://wa.me/${BUSINESS_CONFIG.phoneNumber}`} target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Contact Developer</a>
            </div>
         </div>
       </footer>
