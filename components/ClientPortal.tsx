@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Settings, LogOut, MessageSquare, Users, Smartphone, CheckCircle, AlertCircle, Server, Key, Wifi, Send, RefreshCw, UploadCloud, Save } from 'lucide-react';
+import { BarChart3, Settings, LogOut, MessageSquare, Users, Smartphone, CheckCircle, AlertCircle, Server, Key, Wifi, Send, RefreshCw, UploadCloud, Save, ExternalLink } from 'lucide-react';
 import { BotConfig } from '../types';
 import { testWhatsAppConnection, sendWhatsAppText, updateBusinessProfile } from '../services/whatsapp';
 
@@ -421,13 +421,47 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout, generatedC
                                                         <div className="text-emerald-600 font-semibold animate-pulse">Linking...</div>
                                                     </div>
                                                 ) : (
-                                                    <div className="bg-white p-4 shadow-lg rounded-lg cursor-pointer group" onClick={simulateConnection}>
-                                                        <div className="w-48 h-48 bg-gray-900 grid grid-cols-6 grid-rows-6 gap-1 p-2 relative overflow-hidden">
-                                                            {[...Array(36)].map((_, i) => (
-                                                                <div key={i} className={`bg-white ${Math.random() > 0.5 ? 'opacity-100' : 'opacity-0'}`}></div>
-                                                            ))}
-                                                            <div className="absolute inset-0 flex items-center justify-center bg-white/90 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <span className="font-bold text-slate-900">Click to Scan</span>
+                                                    <div className="relative group cursor-pointer" onClick={simulateConnection}>
+                                                        <div className="w-64 h-64 bg-white p-4 rounded-2xl shadow-sm border-2 border-gray-100 flex items-center justify-center relative overflow-hidden">
+                                                            {/* QR Code Construction */}
+                                                            <div className="relative w-48 h-48">
+                                                                 {/* 3 Finder Patterns */}
+                                                                 <div className="absolute top-0 left-0 w-12 h-12 border-[6px] border-slate-900 rounded-lg flex items-center justify-center">
+                                                                     <div className="w-6 h-6 bg-slate-900 rounded-sm"></div>
+                                                                 </div>
+                                                                 <div className="absolute top-0 right-0 w-12 h-12 border-[6px] border-slate-900 rounded-lg flex items-center justify-center">
+                                                                     <div className="w-6 h-6 bg-slate-900 rounded-sm"></div>
+                                                                 </div>
+                                                                 <div className="absolute bottom-0 left-0 w-12 h-12 border-[6px] border-slate-900 rounded-lg flex items-center justify-center">
+                                                                     <div className="w-6 h-6 bg-slate-900 rounded-sm"></div>
+                                                                 </div>
+
+                                                                 {/* Data Matrix Simulation */}
+                                                                 <div className="w-full h-full grid grid-cols-12 grid-rows-12 gap-1 p-1">
+                                                                      {[...Array(144)].map((_, i) => {
+                                                                          // Skip finder pattern areas
+                                                                          const row = Math.floor(i / 12);
+                                                                          const col = i % 12;
+                                                                          const isTL = row < 4 && col < 4;
+                                                                          const isTR = row < 4 && col > 7;
+                                                                          const isBL = row > 7 && col < 4;
+                                                                          if (isTL || isTR || isBL) return <div key={i}></div>;
+                                                                          
+                                                                          return (
+                                                                              <div key={i} className={`rounded-[1px] ${Math.random() > 0.4 ? 'bg-slate-900' : 'bg-transparent'}`}></div>
+                                                                          );
+                                                                      })}
+                                                                 </div>
+                                                            </div>
+
+                                                            {/* Hover Overlay */}
+                                                            <div className="absolute inset-0 bg-white/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+                                                                <div className="text-center">
+                                                                    <div className="w-12 h-12 bg-whatsapp-teal rounded-full flex items-center justify-center text-white mx-auto mb-2 shadow-lg">
+                                                                        <Smartphone size={20} />
+                                                                    </div>
+                                                                    <span className="font-bold text-slate-800 text-sm">Click to Connect</span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -436,10 +470,39 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout, generatedC
                                         </div>
                                     ) : (
                                         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                                            <div className="mb-6 p-4 bg-blue-50 text-blue-800 rounded-lg text-sm flex items-start gap-3">
-                                                <Server size={18} className="mt-0.5 shrink-0" />
-                                                <div>
-                                                    <strong>Official Server Connection:</strong> Use credentials from the Meta for Developers Dashboard (WhatsApp &gt; API Setup).
+                                            
+                                            {/* NEW HELP BOX: Where to find tokens */}
+                                            <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-8">
+                                                <div className="flex items-start gap-4">
+                                                    <div className="p-2 bg-white rounded-lg shadow-sm text-blue-600 shrink-0">
+                                                        <Key size={24} />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h4 className="font-bold text-blue-900 text-sm flex items-center gap-2">
+                                                            Where do I find these credentials?
+                                                        </h4>
+                                                        <p className="text-xs text-blue-700 mt-1 mb-3">
+                                                            You need a Meta Developer account and a WhatsApp Business App.
+                                                        </p>
+                                                        <ol className="list-decimal list-inside text-xs text-blue-800 space-y-2 bg-white/50 p-3 rounded-lg border border-blue-100/50">
+                                                            <li className="flex gap-2">
+                                                                <span className="font-bold text-blue-400">1.</span>
+                                                                <span>Go to <a href="https://developers.facebook.com/apps/" target="_blank" rel="noreferrer" className="underline font-bold hover:text-blue-600 inline-flex items-center gap-1">Meta Developers <ExternalLink size={10}/></a> and select your app.</span>
+                                                            </li>
+                                                            <li className="flex gap-2">
+                                                                <span className="font-bold text-blue-400">2.</span>
+                                                                <span>Navigate to <strong>WhatsApp</strong> &gt; <strong>API Setup</strong> in the sidebar.</span>
+                                                            </li>
+                                                            <li className="flex gap-2">
+                                                                <span className="font-bold text-blue-400">3.</span>
+                                                                <span>Copy the <strong>Phone Number ID</strong> and <strong>Temporary Access Token</strong>.</span>
+                                                            </li>
+                                                        </ol>
+                                                        <div className="mt-3 flex items-center gap-2 text-[10px] text-blue-600 bg-blue-100/50 p-2 rounded border border-blue-100">
+                                                            <AlertCircle size={12} />
+                                                            <span>For a permanent token, create a <strong>System User</strong> in Business Settings.</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 
