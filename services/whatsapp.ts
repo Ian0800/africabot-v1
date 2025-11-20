@@ -144,7 +144,7 @@ export const updateBusinessProfile = async (
 /**
  * Simulates saving the credentials to a backend database.
  */
-export const saveBotConfiguration = async (config: BotConfig, creds: WhatsAppCredentials) => {
+export const saveBotConfiguration = async (_config: BotConfig, _creds: WhatsAppCredentials) => {
   // In a real app, this would POST to your backend database (Firebase, Supabase, etc.)
   // For now, we simulate a delay and success
   await new Promise(resolve => setTimeout(resolve, 1500));
