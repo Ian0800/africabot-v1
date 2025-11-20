@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Settings, LogOut, MessageSquare, Users, Smartphone, CheckCircle, AlertCircle, Server, Key, Wifi, Send, RefreshCw, UploadCloud, Save, ExternalLink } from 'lucide-react';
+import { BarChart3, Settings, LogOut, MessageSquare, Users, Smartphone, CheckCircle, AlertCircle, Key, Wifi, Send, RefreshCw, UploadCloud, Save, ExternalLink } from 'lucide-react';
 import { BotConfig } from '../types';
 import { testWhatsAppConnection, sendWhatsAppText, updateBusinessProfile } from '../services/whatsapp';
 
@@ -498,9 +498,17 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout, generatedC
                                                                 <span>Copy the <strong>Phone Number ID</strong> and <strong>Temporary Access Token</strong>.</span>
                                                             </li>
                                                         </ol>
-                                                        <div className="mt-3 flex items-center gap-2 text-[10px] text-blue-600 bg-blue-100/50 p-2 rounded border border-blue-100">
-                                                            <AlertCircle size={12} />
-                                                            <span>For a permanent token, create a <strong>System User</strong> in Business Settings.</span>
+                                                        <div className="mt-3 flex flex-col gap-2 text-[10px] text-blue-600 bg-blue-100/50 p-3 rounded border border-blue-100">
+                                                            <div className="flex items-center gap-2 font-bold">
+                                                                <AlertCircle size={12} />
+                                                                <span>Important: The token above expires in 24 hours!</span>
+                                                            </div>
+                                                            <p>To keep your bot running forever, you need a <strong>Permanent Access Token</strong>:</p>
+                                                            <ul className="list-disc list-inside pl-1 space-y-1">
+                                                                <li>Go to <strong>Business Settings</strong> on Meta.</li>
+                                                                <li>Users &gt; System Users &gt; Add.</li>
+                                                                <li>Generate a new token with `whatsapp_business_messaging` permission.</li>
+                                                            </ul>
                                                         </div>
                                                     </div>
                                                 </div>
