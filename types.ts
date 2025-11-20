@@ -1,3 +1,4 @@
+
 export interface BotConfig {
   businessName: string;
   businessType: string;
@@ -12,4 +13,4 @@ export interface PricingTier {
   recommended?: boolean;
 }
 
-export type ViewState = 'landing' | 'demo' | 'success';
+export type ViewState = 'landing' | 'demo' | 'success' | 'login' | 'dashboard';
